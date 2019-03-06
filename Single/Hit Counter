@@ -1,0 +1,61 @@
+//Hit Counter; Log hitter: Record the number of hits in last 5 mins.
+
+/*
+  Naive solution: Queue
+  Note that it could be extremely costing in large scale systems.
+ */
+class HitCounter {
+public:
+    /** Initialize your data structure here. */
+    HitCounter() {}
+    /** Record a hit.
+        @param timestamp - The current timestamp (in seconds granularity). */
+    void hit(int t) {
+        q.push(t);
+    }
+    /** Return the number of hits in the past 5 minutes.
+        @param timestamp - The current timestamp (in seconds granularity). */
+    int getHits(int t) {
+        for(;!q.empty()&&t-q.front()>=300;q.pop());
+        return q.size();
+    }
+private:
+    queue<int> q;
+};
+
+/*
+  Optimized with sliding window
+  Time and space complexity are not constant.
+  Support multiple hit in 1 sec, if more precisions are desired, use more buckets (resize(3000) etc).
+  Added concurrency, though a better concurrency implementation is to create multiple objects.
+*/
+class HitCounter {
+public:
+	/** Initialize your data structure here. */
+	HitCounter() {
+		times.resize(300);
+		hits.resize(300);
+	}
+	/** Record a hit.
+	@param timestamp - The current timestamp (in seconds granularity). */
+	void hit(int t) {
+		pthread_mutex_lock(&mutex);
+		int ind = t % 300;
+		if (times[ind] != t) {
+			times[ind] = t;
+			hits[ind] = 1;
+		}
+		else ++hits[ind];
+		pthread_mutex_unlock(&mutex);
+	}
+	/** Return the number of hits in the past 5 minutes.
+	@param timestamp - The current timestamp (in seconds granularity). */
+	int getHits(int t) {
+		int rst = 0;
+		for (int i = 0; i<300; ++i) if (t - times[i]<300) rst += hits[i];
+		return rst;
+	}
+private:
+	vector<int> times, hits;
+	pthread_mutex_t mutex;
+};
