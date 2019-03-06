@@ -1,0 +1,30 @@
+//LRU cache: least recently used cache
+
+//Implement with hashmap
+class LRUCache{
+public:
+    LRUCache(int capacity) {
+        cap = capacity;
+    }
+    int get(int key) {
+        auto it = m.find(key);
+        if (it == m.end()) return -1;
+        lst.splice(lst.begin(), lst, it->second);
+        return it->second->second;
+    }
+    void put(int key, int value) {
+        auto it = m.find(key);
+        if (it != m.end()) lst.erase(it->second);
+        lst.push_front(make_pair(key, value));
+        m[key] = lst.begin();
+        if (m.size() > cap) {
+            int k = lst.rbegin()->first;
+            lst.pop_back();
+            m.erase(k);
+        }
+    }
+private:
+    int cap;
+    list<pair<int, int>> lst;
+    unordered_map<int, list<pair<int, int>>::iterator> m;
+};
