@@ -1,0 +1,40 @@
+class LFUCache {
+public:
+    LFUCache(int capacity) {
+        cp=capacity;
+        sz=0;
+    }
+    
+    int get(int key) {
+        if(kvfmp.find(key)==kvfmp.end()) return -1;
+        fkmp[kvfmp[key].second].erase(kimp[key]);
+        ++kvfmp[key].second;
+        fkmp[kvfmp[key].second].push_back(key);
+        kimp[key]=--fkmp[kvfmp[key].second].end();
+        if(!fkmp[mf].size()) ++mf;
+        return kvfmp[key].first;
+    }
+    
+    void put(int key, int value) {
+        if(cp<=0) return;
+        if(get(key)!=-1){
+            kvfmp[key].first=value;
+            return;
+        }
+        if(sz>=cp){
+            kvfmp.erase(fkmp[mf].front());
+            kimp.erase(fkmp[mf].front());
+            fkmp[mf].pop_front();
+            --sz;
+        }
+        kvfmp[key]={value, 1};
+        fkmp[1].push_back(key);
+        kimp[key]=--fkmp[1].end();
+        mf=1;
+        ++sz;
+    }
+    int cp, sz, mf;
+    unordered_map<int, pair<int, int>> kvfmp;
+    unordered_map<int, list<int>::iterator> kimp;
+    unordered_map<int, list<int>> fkmp;
+};
