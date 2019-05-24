@@ -1,0 +1,21 @@
+class PeekingIterator : public Iterator {    
+    int buf;
+    bool flag;
+public:
+	PeekingIterator(const vector<int>& nums) : Iterator(nums) {	
+        flag=0;
+}
+	int peek() {
+        if(!flag) buf=Iterator::next();
+        flag=1;
+        return buf;
+	}
+	int next() {
+        if(!flag) return Iterator::next();
+        flag=0;
+        return buf;
+	}
+	bool hasNext() const {
+        		return flag||Iterator::hasNext();
+	}
+};
