@@ -1,0 +1,34 @@
+class TrieNode:
+    def __init__(self):
+        self.nxt=dict()
+        self.str=set()
+class AutocompleteSystem(object):
+    def __init__(self, str, times):
+        self.bfr=''
+        self.fq=collections.defaultdict(int)
+        self.rt=TrieNode()
+        for s, t in zip(str, times):
+            self.fq[s]=t
+            self.addSentence(s)
+        self.t=self.rt
+    def input(self, c):
+        rst=[]
+        if c!='#':
+            self.bfr+=c
+            if self.t: self.t=self.t.nxt.get(c)
+            if self.t: rst=sorted(self.t.str, key=lambda x:(-self.fq[x], x))[:3]
+        else:
+            self.fq[self.bfr]+=1
+            self.addSentence(self.bfr)
+            self.bfr=''
+            self.t=self.rt
+        return rst
+    def addSentence(self, s):
+        node=self.rt
+        for wd in s:
+            child=node.nxt.get(wd)
+            if child is None:
+                child=TrieNode()
+                node.nxt[wd]=child
+            node=child
+            child.str.add(s)
