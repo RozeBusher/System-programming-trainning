@@ -1,0 +1,105 @@
+#include <bits/stdc++.h>
+using namespace std;
+//Queue && hash set
+//Time:
+//  allocate: O(1)
+//  del: O(1)
+//Space: O(n)
+class Allocator_Q{
+public:
+    queue<int> q;
+    unordered_set<int> st;
+    Allocator_Q(int a){ for(int i=0;i<a;q.push(i++)); }
+    int allocate(){
+        if(q.empty()) return -1;
+        int rst=q.front(); q.pop();
+        st.insert(rst);
+        return rst;
+    }
+    bool del(int id){
+        if(id<0||st.find(id)==st.end()||id>=q.size()+st.size()) return 0;
+        st.erase(id);
+        q.push(id);
+        return 1;
+    }
+};
+//Bitset
+//Time:
+//  allocate: O(n)
+//  del: O(1)
+//Space: O(n); Note: using only 1/4 or 1/8 of space than using queue, which depends on the system.
+#define MAXN 256
+class Allocator_BS{
+public:
+    bitset<MAXN> bs;
+    int sz, cur;
+    Allocator_BS(int a){
+        bs.reset();
+        sz=a;
+        cur=0;
+    }
+    int allocate(){
+        if(cur==sz) return -1;
+        int rst=cur;
+        for(bs.set(cur);bs.test(cur);++cur);
+        return rst;
+    }
+    bool del(int a){
+        if(a<0||a>=sz||!bs.test(a)) return 0;
+        bs.reset(a);
+        if(cur>a) cur=a;
+        return 1;
+    }
+};
+//Segment tree
+//Time:
+//  allocate: O(logn)
+//  del: O(logn)
+//Space: O(n); Note: using space twice as using bit set.
+#define LEFT(a) (2*a+1)
+#define RIGHT(a) (2*a+2)
+class Allocator_ST{
+public:
+    bitset<MAXN> bs;
+    int sz;
+    Allocator_ST(int a){
+        sz=a;
+        bs.reset();
+    }
+    int allocate(){
+        int ind=0;
+        while(ind<sz-1)
+            if(!bs.test(2*ind+1)) ind=ind*2+1;
+            else if(!bs.test(2*ind+2)) ind=ind*2+2;
+            else return -1;
+        bs.set(ind);
+        update(ind);
+        return ind-sz+1;
+    }
+    bool del(int a){
+        if(a<0||a>=sz||!bs.test(a+sz-1)) return 0;
+        bs.reset(a+sz-1);
+        update(a+sz-1);
+        return 1;
+    }
+    void update(int a){
+        while(a>0){
+            int p=(a-1)/2;
+            if(a%2)
+                if(bs.test(a)&&bs.test(a+1)) bs.set(p);
+                else bs.reset(p);
+            else 
+                if(bs.test(a)&&bs.test(a-1)) bs.set(p);
+                else bs.reset(p);
+            a=p;
+        }
+    }
+};
+int main(){
+    Allocator_ST t1(10);
+    for(int i=0;i<10;++i) cout<<t1.allocate()<<endl;
+    cout<<(t1.del(0)?"del":"fail")<<endl;
+    cout<<(t1.del(12)?"del":"fail")<<endl;
+    cout<<(t1.del(7)?"del":"fail")<<endl;
+    for(int i=0;i<8;++i) cout<<t1.allocate()<<endl;
+}
