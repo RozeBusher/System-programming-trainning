@@ -27,7 +27,7 @@ public:
 //Time:
 //  allocate: O(n)
 //  del: O(1)
-//Space: O(n); Note: using only 1/4 or 1/8 of space than using queue, which depends on the system.
+//Space: O(n); Note: using only 1/32 or 1/64 of space than using queue, which depends on the system.
 #define MAXN 256
 class Allocator_BS{
 public:
